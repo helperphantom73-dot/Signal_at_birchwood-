@@ -689,10 +689,10 @@ func fire() -> void:
 	var best: Foe = null; var bdx := 9999.0; var by := 0.0
 	for f in foes:
 		if f.van > 0.0 or absf(f.y - P.y) > 26.0: continue
-		var dx := (f.x - m.x) * face
+		var dx: float = (f.x - m.x) * face
 		if dx < 10.0 or dx > 900.0 or dx >= bdx: continue
 		var hh: float = 125.0 * [1.12, 1.28, 1.2][f.kind] * sc(f.y) * 0.9
-		var ya := m.y - tan(ang) * dx
+		var ya: float = m.y - tan(ang) * dx
 		if ya > f.y or ya < f.y - hh - 6.0: continue
 		best = f; bdx = dx; by = ya
 	var en := m + Vector2(face * cos(ang), -sin(ang)) * 900.0
