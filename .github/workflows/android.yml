@@ -7,14 +7,26 @@ jobs:
       image: barichello/godot-ci:4.3
     steps:
       - uses: actions/checkout@v4
-      - name: Setup templates
+      - name: Setup
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/ ~/.config
+          mkdir -p ~/.local/share/godot/export_templates ~/.config
           cp -r /root/.local/share/godot/export_templates/4.3.stable ~/.local/share/godot/export_templates/
           cp -r /root/.config/godot ~/.config/ || true
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore /github/home/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+      - name: Diagnostics
+        run: |
+          echo "HOME=$HOME"
+          ls ~/.local/share/godot/export_templates/4.3.stable | head -20
+          ls /usr/lib/android-sdk /usr/lib/android-sdk/build-tools /usr/lib/android-sdk/platforms 2>&1 | head -20
+          grep -i "android\|java" ~/.config/godot/editor_settings* || true
+          java -version 2>&1 | head -2
       - name: Import
         run: godot --headless --import || true
       - name: Export APK
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: /github/home/debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
         run: |
           mkdir -v -p build
           godot --headless --verbose --export-debug "Android" build/SignalAtBirchwood.apk
